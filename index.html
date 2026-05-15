@@ -1,0 +1,339 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="碳循环">
+<title>碳循环日历</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  :root {
+    --safe-top: env(safe-area-inset-top, 20px);
+    --safe-bottom: env(safe-area-inset-bottom, 20px);
+  }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "Helvetica Neue", sans-serif;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: calc(var(--safe-top) + 20px) 24px calc(var(--safe-bottom) + 20px);
+    transition: background 0.5s ease;
+    -webkit-tap-highlight-color: transparent;
+    -webkit-user-select: none;
+    user-select: none;
+  }
+  body.low-carb {
+    background: linear-gradient(160deg, #0a1a0f 0%, #0f2b1a 40%, #1a3a28 100%);
+  }
+  body.high-carb {
+    background: linear-gradient(160deg, #2a1a0a 0%, #3d2010 40%, #4a2a15 100%);
+  }
+
+  .header {
+    text-align: center;
+    margin-bottom: 28px;
+    width: 100%;
+  }
+  .header .date-text {
+    font-size: 15px;
+    color: rgba(255,255,255,0.5);
+    letter-spacing: 1px;
+    margin-bottom: 6px;
+  }
+  .header .week-day {
+    font-size: 17px;
+    color: rgba(255,255,255,0.7);
+    font-weight: 500;
+  }
+
+  .main-card {
+    width: 100%;
+    max-width: 360px;
+    border-radius: 24px;
+    padding: 36px 28px 32px;
+    text-align: center;
+    margin-bottom: 28px;
+    position: relative;
+    overflow: hidden;
+  }
+  body.low-carb .main-card {
+    background: linear-gradient(135deg, rgba(34,197,94,0.12) 0%, rgba(34,197,94,0.04) 100%);
+    border: 1px solid rgba(34,197,94,0.2);
+    box-shadow: 0 8px 40px rgba(34,197,94,0.08);
+  }
+  body.high-carb .main-card {
+    background: linear-gradient(135deg, rgba(251,146,60,0.15) 0%, rgba(251,146,60,0.04) 100%);
+    border: 1px solid rgba(251,146,60,0.2);
+    box-shadow: 0 8px 40px rgba(251,146,60,0.08);
+  }
+
+  .status-icon {
+    font-size: 52px;
+    margin-bottom: 12px;
+    display: block;
+  }
+  .status-label {
+    font-size: 32px;
+    font-weight: 700;
+    letter-spacing: 2px;
+    margin-bottom: 8px;
+  }
+  body.low-carb .status-label { color: #4ade80; }
+  body.high-carb .status-label { color: #fb923c; }
+
+  .cycle-info {
+    font-size: 14px;
+    color: rgba(255,255,255,0.45);
+    margin-bottom: 20px;
+  }
+
+  .cycle-dots {
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+  }
+  .cycle-dot {
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 12px;
+    font-weight: 600;
+    transition: all 0.3s ease;
+  }
+  .cycle-dot.low {
+    background: rgba(34,197,94,0.15);
+    color: rgba(34,197,94,0.6);
+    border: 1px solid rgba(34,197,94,0.2);
+  }
+  .cycle-dot.high {
+    background: rgba(251,146,60,0.15);
+    color: rgba(251,146,60,0.6);
+    border: 1px solid rgba(251,146,60,0.2);
+  }
+  .cycle-dot.active.low {
+    background: rgba(34,197,94,0.3);
+    color: #4ade80;
+    border-color: rgba(34,197,94,0.5);
+    box-shadow: 0 0 12px rgba(34,197,94,0.3);
+  }
+  .cycle-dot.active.high {
+    background: rgba(251,146,60,0.3);
+    color: #fb923c;
+    border-color: rgba(251,146,60,0.5);
+    box-shadow: 0 0 12px rgba(251,146,60,0.3);
+  }
+
+  .week-section {
+    width: 100%;
+    max-width: 360px;
+  }
+  .week-title {
+    font-size: 13px;
+    color: rgba(255,255,255,0.35);
+    letter-spacing: 1px;
+    margin-bottom: 14px;
+    text-align: center;
+  }
+  .week-grid {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    gap: 6px;
+  }
+  .day-cell {
+    aspect-ratio: 1;
+    border-radius: 14px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    font-size: 11px;
+    position: relative;
+  }
+  .day-cell .day-name {
+    font-size: 10px;
+    opacity: 0.5;
+    margin-bottom: 2px;
+  }
+  .day-cell .day-num {
+    font-size: 13px;
+    font-weight: 600;
+  }
+  .day-cell.low {
+    background: rgba(34,197,94,0.08);
+    border: 1px solid rgba(34,197,94,0.12);
+    color: rgba(34,197,94,0.5);
+  }
+  .day-cell.high {
+    background: rgba(251,146,60,0.1);
+    border: 1px solid rgba(251,146,60,0.15);
+    color: rgba(251,146,60,0.5);
+  }
+  .day-cell.today.low {
+    background: rgba(34,197,94,0.25);
+    border-color: rgba(34,197,94,0.5);
+    color: #4ade80;
+    box-shadow: 0 0 10px rgba(34,197,94,0.2);
+  }
+  .day-cell.today.high {
+    background: rgba(251,146,60,0.25);
+    border-color: rgba(251,146,60,0.5);
+    color: #fb923c;
+    box-shadow: 0 0 10px rgba(251,146,60,0.2);
+  }
+  .day-cell.past {
+    opacity: 0.4;
+  }
+  .day-cell .today-dot {
+    width: 4px;
+    height: 4px;
+    border-radius: 50%;
+    position: absolute;
+    bottom: 5px;
+  }
+  .day-cell.today .today-dot {
+    display: block;
+  }
+  .day-cell:not(.today) .today-dot {
+    display: none;
+  }
+  .day-cell.today.low .today-dot { background: #4ade80; }
+  .day-cell.today.high .today-dot { background: #fb923c; }
+
+  .tip {
+    margin-top: 28px;
+    padding: 16px 20px;
+    border-radius: 16px;
+    width: 100%;
+    max-width: 360px;
+    font-size: 13px;
+    line-height: 1.7;
+    color: rgba(255,255,255,0.55);
+  }
+  body.low-carb .tip {
+    background: rgba(34,197,94,0.06);
+    border: 1px solid rgba(34,197,94,0.1);
+  }
+  body.high-carb .tip {
+    background: rgba(251,146,60,0.06);
+    border: 1px solid rgba(251,146,60,0.1);
+  }
+  .tip strong {
+    color: rgba(255,255,255,0.75);
+  }
+
+  @media (max-width: 380px) {
+    .main-card { padding: 28px 20px 24px; }
+    .status-label { font-size: 28px; }
+    .day-cell { border-radius: 10px; }
+  }
+</style>
+</head>
+<body>
+  <div class="header">
+    <div class="date-text" id="dateText"></div>
+    <div class="week-day" id="weekDay"></div>
+  </div>
+
+  <div class="main-card">
+    <span class="status-icon" id="statusIcon"></span>
+    <div class="status-label" id="statusLabel"></div>
+    <div class="cycle-info" id="cycleInfo"></div>
+    <div class="cycle-dots" id="cycleDots"></div>
+  </div>
+
+  <div class="week-section">
+    <div class="week-title">本周概览</div>
+    <div class="week-grid" id="weekGrid"></div>
+  </div>
+
+  <div class="tip" id="tip"></div>
+
+<script>
+  // ============ CONFIG ============
+  const START_DATE = new Date(2026, 4, 11); // May 11, 2026 (month is 0-indexed)
+  const CYCLE = ['low', 'low', 'low', 'high']; // 低低低高
+  const DAY_NAMES = ['日', '一', '二', '三', '四', '五', '六'];
+
+  // ============ CALC ============
+  function getCycleDay(date) {
+    const msPerDay = 86400000;
+    const start = Date.UTC(START_DATE.getFullYear(), START_DATE.getMonth(), START_DATE.getDate());
+    const current = Date.UTC(date.getFullYear(), date.getMonth(), date.getDate());
+    const diff = Math.floor((current - start) / msPerDay);
+    const index = ((diff % CYCLE.length) + CYCLE.length) % CYCLE.length;
+    return { type: CYCLE[index], cycleDay: index + 1, diff: diff };
+  }
+
+  function render() {
+    const now = new Date();
+    const today = getCycleDay(now);
+    const isHigh = today.type === 'high';
+
+    // Body class
+    document.body.className = isHigh ? 'high-carb' : 'low-carb';
+
+    // Header
+    const dateStr = `${now.getFullYear()}.${String(now.getMonth()+1).padStart(2,'0')}.${String(now.getDate()).padStart(2,'0')}`;
+    document.getElementById('dateText').textContent = dateStr;
+    document.getElementById('weekDay').textContent = `星期${DAY_NAMES[now.getDay()]}`;
+
+    // Main card
+    document.getElementById('statusIcon').textContent = isHigh ? '🔥' : '🥗';
+    document.getElementById('statusLabel').textContent = isHigh ? '高碳日' : '低碳日';
+    document.getElementById('cycleInfo').textContent = `第 ${today.diff + 1} 天 · 周期第 ${today.cycleDay}/4 天`;
+
+    // Cycle dots
+    const dotsHtml = CYCLE.map((type, i) => {
+      const active = i === today.cycleDay - 1 ? 'active' : '';
+      const dayLabels = ['低', '低', '低', '高'];
+      return `<div class="cycle-dot ${type} ${active}">${dayLabels[i]}</div>`;
+    }).join('');
+    document.getElementById('cycleDots').innerHTML = dotsHtml;
+
+    // Week grid - show current week (Mon to Sun)
+    const dayOfWeek = now.getDay();
+    const monday = new Date(now);
+    monday.setDate(now.getDate() - ((dayOfWeek + 6) % 7));
+
+    let weekHtml = '';
+    for (let i = 0; i < 7; i++) {
+      const d = new Date(monday);
+      d.setDate(monday.getDate() + i);
+      const info = getCycleDay(d);
+      const isToday = d.toDateString() === now.toDateString();
+      const isPast = d < new Date(now.getFullYear(), now.getMonth(), now.getDate());
+
+      let cls = `day-cell ${info.type}`;
+      if (isToday) cls += ' today';
+      if (isPast) cls += ' past';
+
+      weekHtml += `
+        <div class="${cls}">
+          <span class="day-name">${DAY_NAMES[(d.getDay())]}</span>
+          <span class="day-num">${d.getDate()}</span>
+          <span class="today-dot"></span>
+        </div>`;
+    }
+    document.getElementById('weekGrid').innerHTML = weekHtml;
+
+    // Tip
+    const tipEl = document.getElementById('tip');
+    if (isHigh) {
+      tipEl.innerHTML = '<strong>高碳日建议</strong><br>适当增加碳水摄入，优先选择优质碳水如糙米、红薯、燕麦。训练日可以安排在高碳日，利用充足的糖原储备提升训练表现。';
+    } else {
+      tipEl.innerHTML = '<strong>低碳日建议</strong><br>控制碳水在 50-100g 左右，增加蛋白质和健康脂肪摄入。多喝水，注意补充电解质，避免高强度训练。';
+    }
+  }
+
+  render();
+  // Auto refresh every minute
+  setInterval(render, 60000);
+</script>
+</body>
+</html>
