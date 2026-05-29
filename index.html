@@ -5,8 +5,8 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, viewport-fit=cover">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<meta name="apple-mobile-web-app-title" content="碳循环">
-<title>碳循环日历</title>
+<meta name="apple-mobile-web-app-title" content="每日提醒">
+<title>每日提醒</title>
 <style>
   * { margin: 0; padding: 0; box-sizing: border-box; }
   :root {
@@ -19,27 +19,21 @@
     display: flex;
     flex-direction: column;
     align-items: center;
-    padding: calc(var(--safe-top) + 20px) 24px calc(var(--safe-bottom) + 20px);
-    transition: background 0.5s ease;
+    padding: calc(var(--safe-top) + 20px) 20px calc(var(--safe-bottom) + 20px);
+    background: linear-gradient(160deg, #0c0f1a 0%, #121828 40%, #1a1f35 100%);
     -webkit-tap-highlight-color: transparent;
     -webkit-user-select: none;
     user-select: none;
   }
-  body.low-carb {
-    background: linear-gradient(160deg, #0a1a0f 0%, #0f2b1a 40%, #1a3a28 100%);
-  }
-  body.high-carb {
-    background: linear-gradient(160deg, #2a1a0a 0%, #3d2010 40%, #4a2a15 100%);
-  }
 
   .header {
     text-align: center;
-    margin-bottom: 28px;
+    margin-bottom: 24px;
     width: 100%;
   }
   .header .date-text {
     font-size: 15px;
-    color: rgba(255,255,255,0.5);
+    color: rgba(255,255,255,0.45);
     letter-spacing: 1px;
     margin-bottom: 6px;
   }
@@ -49,210 +43,186 @@
     font-weight: 500;
   }
 
-  .main-card {
+  /* ===== Cards ===== */
+  .card {
     width: 100%;
-    max-width: 360px;
-    border-radius: 24px;
-    padding: 36px 28px 32px;
-    text-align: center;
-    margin-bottom: 16px;
-    position: relative;
-    overflow: hidden;
-  }
-  body.low-carb .main-card {
-    background: linear-gradient(135deg, rgba(34,197,94,0.12) 0%, rgba(34,197,94,0.04) 100%);
-    border: 1px solid rgba(34,197,94,0.2);
-    box-shadow: 0 8px 40px rgba(34,197,94,0.08);
-  }
-  body.high-carb .main-card {
-    background: linear-gradient(135deg, rgba(251,146,60,0.15) 0%, rgba(251,146,60,0.04) 100%);
-    border: 1px solid rgba(251,146,60,0.2);
-    box-shadow: 0 8px 40px rgba(251,146,60,0.08);
-  }
-
-  .status-icon {
-    font-size: 52px;
-    margin-bottom: 12px;
-    display: block;
-  }
-  .status-label {
-    font-size: 32px;
-    font-weight: 700;
-    letter-spacing: 2px;
-    margin-bottom: 8px;
-  }
-  body.low-carb .status-label { color: #4ade80; }
-  body.high-carb .status-label { color: #fb923c; }
-
-  .cycle-info {
-    font-size: 14px;
-    color: rgba(255,255,255,0.45);
-    margin-bottom: 20px;
-  }
-
-  .cycle-dots {
-    display: flex;
-    justify-content: center;
-    gap: 10px;
-  }
-  .cycle-dot {
-    width: 36px;
-    height: 36px;
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 12px;
-    font-weight: 600;
-    transition: all 0.3s ease;
-  }
-  .cycle-dot.low {
-    background: rgba(34,197,94,0.15);
-    color: rgba(34,197,94,0.6);
-    border: 1px solid rgba(34,197,94,0.2);
-  }
-  .cycle-dot.high {
-    background: rgba(251,146,60,0.15);
-    color: rgba(251,146,60,0.6);
-    border: 1px solid rgba(251,146,60,0.2);
-  }
-  .cycle-dot.active.low {
-    background: rgba(34,197,94,0.3);
-    color: #4ade80;
-    border-color: rgba(34,197,94,0.5);
-    box-shadow: 0 0 12px rgba(34,197,94,0.3);
-  }
-  .cycle-dot.active.high {
-    background: rgba(251,146,60,0.3);
-    color: #fb923c;
-    border-color: rgba(251,146,60,0.5);
-    box-shadow: 0 0 12px rgba(251,146,60,0.3);
-  }
-
-  /* ===== Training Card ===== */
-  .train-card {
-    width: 100%;
-    max-width: 360px;
+    max-width: 380px;
     border-radius: 24px;
     padding: 28px 24px 24px;
     text-align: center;
-    margin-bottom: 28px;
+    margin-bottom: 16px;
     position: relative;
     overflow: hidden;
-    background: linear-gradient(135deg, rgba(56,189,248,0.1) 0%, rgba(56,189,248,0.03) 100%);
-    border: 1px solid rgba(56,189,248,0.18);
-    box-shadow: 0 8px 40px rgba(56,189,248,0.06);
   }
-  .train-card.rest {
-    background: linear-gradient(135deg, rgba(148,163,184,0.08) 0%, rgba(148,163,184,0.02) 100%);
-    border-color: rgba(148,163,184,0.15);
-    box-shadow: 0 8px 40px rgba(148,163,184,0.04);
-  }
-
-  .train-header {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 8px;
-    margin-bottom: 16px;
-  }
-  .train-header .train-tag {
+  .card-tag {
     font-size: 11px;
-    letter-spacing: 1.5px;
+    letter-spacing: 2px;
     text-transform: uppercase;
-    color: rgba(56,189,248,0.6);
     font-weight: 600;
+    margin-bottom: 14px;
   }
-  .train-card.rest .train-header .train-tag {
-    color: rgba(148,163,184,0.5);
-  }
-
-  .train-icon {
-    font-size: 38px;
+  .card-icon {
+    font-size: 40px;
     margin-bottom: 8px;
     display: block;
   }
-  .train-label {
-    font-size: 24px;
+  .card-title {
+    font-size: 26px;
     font-weight: 700;
     letter-spacing: 2px;
     margin-bottom: 6px;
-    color: #38bdf8;
   }
-  .train-card.rest .train-label {
-    color: rgba(148,163,184,0.7);
-  }
-
-  .train-sub {
+  .card-sub {
     font-size: 13px;
-    color: rgba(255,255,255,0.4);
-    margin-bottom: 16px;
+    color: rgba(255,255,255,0.38);
+    margin-bottom: 14px;
   }
-
-  .train-parts {
+  .card-parts {
     display: flex;
     justify-content: center;
     gap: 8px;
     flex-wrap: wrap;
-    margin-bottom: 4px;
   }
-  .train-part {
+  .card-part {
     padding: 4px 12px;
     border-radius: 20px;
     font-size: 12px;
     font-weight: 500;
-    background: rgba(56,189,248,0.12);
-    color: rgba(56,189,248,0.75);
-    border: 1px solid rgba(56,189,248,0.15);
   }
-  .train-card.rest .train-parts { display: none; }
-
-  .train-dots {
+  .card-dots {
     display: flex;
     justify-content: center;
-    gap: 10px;
+    gap: 8px;
     margin-top: 16px;
   }
-  .train-dot {
-    width: 32px;
-    height: 32px;
+  .card-dot {
+    width: 30px;
+    height: 30px;
     border-radius: 50%;
     display: flex;
     align-items: center;
     justify-content: center;
-    font-size: 11px;
+    font-size: 10px;
     font-weight: 600;
-    background: rgba(56,189,248,0.1);
-    color: rgba(56,189,248,0.45);
-    border: 1px solid rgba(56,189,248,0.12);
     transition: all 0.3s ease;
   }
-  .train-dot.rest-dot {
-    background: rgba(148,163,184,0.08);
-    color: rgba(148,163,184,0.4);
-    border-color: rgba(148,163,184,0.1);
+
+  /* ---- Training Card ---- */
+  .card.train {
+    background: linear-gradient(135deg, rgba(56,189,248,0.1) 0%, rgba(56,189,248,0.03) 100%);
+    border: 1px solid rgba(56,189,248,0.18);
+    box-shadow: 0 8px 40px rgba(56,189,248,0.06);
   }
-  .train-dot.active:not(.rest-dot) {
+  .card.train .card-tag { color: rgba(56,189,248,0.6); }
+  .card.train .card-title { color: #38bdf8; }
+  .card.train .card-part {
+    background: rgba(56,189,248,0.12);
+    color: rgba(56,189,248,0.75);
+    border: 1px solid rgba(56,189,248,0.15);
+  }
+  .card.train .card-dot {
+    background: rgba(56,189,248,0.1);
+    color: rgba(56,189,248,0.4);
+    border: 1px solid rgba(56,189,248,0.12);
+  }
+  .card.train .card-dot.active {
     background: rgba(56,189,248,0.25);
     color: #38bdf8;
     border-color: rgba(56,189,248,0.45);
     box-shadow: 0 0 12px rgba(56,189,248,0.25);
   }
-  .train-dot.active.rest-dot {
-    background: rgba(148,163,184,0.2);
-    color: rgba(148,163,184,0.8);
-    border-color: rgba(148,163,184,0.4);
-    box-shadow: 0 0 12px rgba(148,163,184,0.15);
+  .card.train .card-dot.rest-dot {
+    background: rgba(148,163,184,0.08);
+    color: rgba(148,163,184,0.35);
+    border-color: rgba(148,163,184,0.1);
+  }
+  .card.train .card-dot.rest-dot.active {
+    background: rgba(148,163,184,0.18);
+    color: rgba(148,163,184,0.75);
+    border-color: rgba(148,163,184,0.35);
+    box-shadow: 0 0 10px rgba(148,163,184,0.12);
+  }
+  .card.train.rest-card {
+    background: linear-gradient(135deg, rgba(148,163,184,0.07) 0%, rgba(148,163,184,0.02) 100%);
+    border-color: rgba(148,163,184,0.12);
+    box-shadow: 0 8px 40px rgba(148,163,184,0.03);
+  }
+  .card.train.rest-card .card-tag { color: rgba(148,163,184,0.45); }
+  .card.train.rest-card .card-title { color: rgba(148,163,184,0.65); }
+
+  /* ---- Skincare Card ---- */
+  .card.skin {
+    background: linear-gradient(135deg, rgba(192,132,252,0.1) 0%, rgba(232,121,249,0.03) 100%);
+    border: 1px solid rgba(192,132,252,0.18);
+    box-shadow: 0 8px 40px rgba(192,132,252,0.06);
+  }
+  .card.skin .card-tag { color: rgba(192,132,252,0.6); }
+  .card.skin .card-title { color: #c084fc; }
+  .card.skin .card-part {
+    background: rgba(192,132,252,0.12);
+    color: rgba(192,132,252,0.75);
+    border: 1px solid rgba(192,132,252,0.15);
+  }
+  .card.skin .card-dot {
+    background: rgba(192,132,252,0.08);
+    color: rgba(192,132,252,0.3);
+    border: 1px solid rgba(192,132,252,0.1);
+  }
+  .card.skin .card-dot.active {
+    background: rgba(192,132,252,0.22);
+    color: #c084fc;
+    border-color: rgba(192,132,252,0.4);
+    box-shadow: 0 0 12px rgba(192,132,252,0.2);
+  }
+  .card.skin.no-routine {
+    background: linear-gradient(135deg, rgba(148,163,184,0.06) 0%, rgba(148,163,184,0.02) 100%);
+    border-color: rgba(148,163,184,0.1);
+    box-shadow: 0 8px 40px rgba(148,163,184,0.03);
+  }
+  .card.skin.no-routine .card-tag { color: rgba(148,163,184,0.4); }
+  .card.skin.no-routine .card-title { color: rgba(148,163,184,0.55); }
+
+  .skin-items {
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+    margin-bottom: 4px;
+  }
+  .skin-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
+  }
+  .skin-item .skin-pill {
+    padding: 6px 16px;
+    border-radius: 20px;
+    font-size: 13px;
+    font-weight: 600;
+  }
+  .skin-item .skin-note {
+    font-size: 10px;
+    color: rgba(255,255,255,0.3);
+  }
+  .skin-pill.vc {
+    background: rgba(251,191,36,0.15);
+    color: #fbbf24;
+    border: 1px solid rgba(251,191,36,0.2);
+  }
+  .skin-pill.ret {
+    background: rgba(192,132,252,0.15);
+    color: #c084fc;
+    border: 1px solid rgba(192,132,252,0.2);
   }
 
   /* ===== Week Grid ===== */
   .week-section {
     width: 100%;
-    max-width: 360px;
+    max-width: 380px;
   }
   .week-title {
     font-size: 13px;
-    color: rgba(255,255,255,0.35);
+    color: rgba(255,255,255,0.3);
     letter-spacing: 1px;
     margin-bottom: 14px;
     text-align: center;
@@ -263,51 +233,63 @@
     gap: 6px;
   }
   .day-cell {
-    aspect-ratio: 1;
     border-radius: 14px;
     display: flex;
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    font-size: 11px;
+    padding: 6px 2px;
+    min-height: 62px;
+    background: rgba(255,255,255,0.03);
+    border: 1px solid rgba(255,255,255,0.06);
+    color: rgba(255,255,255,0.4);
     position: relative;
   }
   .day-cell .day-name {
     font-size: 10px;
     opacity: 0.5;
-    margin-bottom: 1px;
+    margin-bottom: 2px;
   }
   .day-cell .day-num {
     font-size: 13px;
     font-weight: 600;
+    margin-bottom: 3px;
   }
-  .day-cell .day-train {
-    font-size: 9px;
-    opacity: 0.55;
-    margin-top: 1px;
-    white-space: nowrap;
+  .day-cell .day-tags {
+    display: flex;
+    gap: 2px;
+    flex-wrap: wrap;
+    justify-content: center;
   }
-  .day-cell.low {
-    background: rgba(34,197,94,0.08);
-    border: 1px solid rgba(34,197,94,0.12);
-    color: rgba(34,197,94,0.5);
+  .day-cell .day-tag {
+    font-size: 8px;
+    padding: 1px 4px;
+    border-radius: 4px;
+    font-weight: 600;
+    line-height: 1.3;
   }
-  .day-cell.high {
-    background: rgba(251,146,60,0.1);
-    border: 1px solid rgba(251,146,60,0.15);
-    color: rgba(251,146,60,0.5);
+  .day-tag.tag-train {
+    background: rgba(56,189,248,0.2);
+    color: rgba(56,189,248,0.8);
   }
-  .day-cell.today.low {
-    background: rgba(34,197,94,0.25);
-    border-color: rgba(34,197,94,0.5);
-    color: #4ade80;
-    box-shadow: 0 0 10px rgba(34,197,94,0.2);
+  .day-tag.tag-rest {
+    background: rgba(148,163,184,0.12);
+    color: rgba(148,163,184,0.5);
   }
-  .day-cell.today.high {
-    background: rgba(251,146,60,0.25);
-    border-color: rgba(251,146,60,0.5);
-    color: #fb923c;
-    box-shadow: 0 0 10px rgba(251,146,60,0.2);
+  .day-tag.tag-vc {
+    background: rgba(251,191,36,0.2);
+    color: rgba(251,191,36,0.8);
+  }
+  .day-tag.tag-ret {
+    background: rgba(192,132,252,0.2);
+    color: rgba(192,132,252,0.8);
+  }
+
+  .day-cell.today {
+    background: rgba(255,255,255,0.08);
+    border-color: rgba(255,255,255,0.2);
+    color: rgba(255,255,255,0.85);
+    box-shadow: 0 0 12px rgba(255,255,255,0.06);
   }
   .day-cell.past {
     opacity: 0.4;
@@ -316,47 +298,34 @@
     width: 4px;
     height: 4px;
     border-radius: 50%;
+    background: rgba(255,255,255,0.6);
     position: absolute;
-    bottom: 5px;
-  }
-  .day-cell.today .today-dot {
-    display: block;
-  }
-  .day-cell:not(.today) .today-dot {
+    bottom: 4px;
     display: none;
   }
-  .day-cell.today.low .today-dot { background: #4ade80; }
-  .day-cell.today.high .today-dot { background: #fb923c; }
+  .day-cell.today .today-dot { display: block; }
 
-  /* ===== Tips ===== */
+  /* ===== Tip ===== */
   .tip {
-    margin-top: 28px;
+    margin-top: 24px;
     padding: 16px 20px;
     border-radius: 16px;
     width: 100%;
-    max-width: 360px;
+    max-width: 380px;
     font-size: 13px;
     line-height: 1.7;
-    color: rgba(255,255,255,0.55);
-  }
-  body.low-carb .tip {
-    background: rgba(34,197,94,0.06);
-    border: 1px solid rgba(34,197,94,0.1);
-  }
-  body.high-carb .tip {
-    background: rgba(251,146,60,0.06);
-    border: 1px solid rgba(251,146,60,0.1);
+    color: rgba(255,255,255,0.5);
+    background: rgba(255,255,255,0.04);
+    border: 1px solid rgba(255,255,255,0.06);
   }
   .tip strong {
-    color: rgba(255,255,255,0.75);
+    color: rgba(255,255,255,0.7);
   }
 
   @media (max-width: 380px) {
-    .main-card { padding: 28px 20px 24px; }
-    .train-card { padding: 24px 18px 20px; }
-    .status-label { font-size: 28px; }
-    .train-label { font-size: 20px; }
-    .day-cell { border-radius: 10px; }
+    .card { padding: 24px 18px 20px; }
+    .card-title { font-size: 22px; }
+    .day-cell { border-radius: 10px; min-height: 56px; }
   }
 </style>
 </head>
@@ -366,22 +335,22 @@
     <div class="week-day" id="weekDay"></div>
   </div>
 
-  <div class="main-card">
-    <span class="status-icon" id="statusIcon"></span>
-    <div class="status-label" id="statusLabel"></div>
-    <div class="cycle-info" id="cycleInfo"></div>
-    <div class="cycle-dots" id="cycleDots"></div>
+  <div class="card train" id="trainCard">
+    <div class="card-tag">TRAINING</div>
+    <span class="card-icon" id="trainIcon"></span>
+    <div class="card-title" id="trainTitle"></div>
+    <div class="card-sub" id="trainSub"></div>
+    <div class="card-parts" id="trainParts"></div>
+    <div class="card-dots" id="trainDots"></div>
   </div>
 
-  <div class="train-card" id="trainCard">
-    <div class="train-header">
-      <span class="train-tag">TRAINING</span>
-    </div>
-    <span class="train-icon" id="trainIcon"></span>
-    <div class="train-label" id="trainLabel"></div>
-    <div class="train-sub" id="trainSub"></div>
-    <div class="train-parts" id="trainParts"></div>
-    <div class="train-dots" id="trainDots"></div>
+  <div class="card skin" id="skinCard">
+    <div class="card-tag">SKINCARE</div>
+    <span class="card-icon" id="skinIcon"></span>
+    <div class="card-title" id="skinTitle"></div>
+    <div class="card-sub" id="skinSub"></div>
+    <div class="skin-items" id="skinItems"></div>
+    <div class="card-dots" id="skinDots"></div>
   </div>
 
   <div class="week-section">
@@ -393,106 +362,184 @@
 
 <script>
   // ============ CONFIG ============
-  const START_DATE = new Date(2026, 4, 11); // May 11, 2026
-  const CYCLE = ['low', 'low', 'low', 'high']; // 碳循环: 低低低高
+  const TRAIN_START = new Date(2026, 4, 28); // May 28 — 已知锚点: 背日
+  // 5/28=背(0), 5/29=休(1), 5/30=肩(2), 5/31=休(3), 6/1=胸(4), 6/2=休(5) → 6天循环
   const TRAIN_CYCLE = [
-    { label: '肩', name: '肩部训练', icon: '🏋️', parts: ['三角肌前束', '三角肌中束', '三角肌后束', '斜方肌'] },
-    { label: '胸', name: '胸部训练', icon: '💪', parts: ['上胸', '中胸', '下胸', '胸肌中缝'] },
     { label: '背', name: '背部训练', icon: '🔥', parts: ['背阔肌', '菱形肌', '竖脊肌', '二头肌'] },
-    { label: '休', name: '休息日', icon: '😴', parts: [] }
+    null, // rest
+    { label: '肩', name: '肩部训练', icon: '🏋️', parts: ['三角肌前束', '三角肌中束', '三角肌后束', '斜方肌'] },
+    null, // rest
+    { label: '胸', name: '胸部训练', icon: '💪', parts: ['上胸', '中胸', '下胸', '胸肌中缝'] },
+    null  // rest
   ];
-  const DAY_NAMES = ['日', '一', '二', '三', '四', '五', '六'];
 
-  // ============ CALC ============
-  function getCycleDay(date) {
-    const msPerDay = 86400000;
-    const start = Date.UTC(START_DATE.getFullYear(), START_DATE.getMonth(), START_DATE.getDate());
-    const current = Date.UTC(date.getFullYear(), date.getMonth(), date.getDate());
-    const diff = Math.floor((current - start) / msPerDay);
-    const carbIndex = ((diff % CYCLE.length) + CYCLE.length) % CYCLE.length;
-    const trainIndex = ((diff % TRAIN_CYCLE.length) + TRAIN_CYCLE.length) % TRAIN_CYCLE.length;
-    return {
-      type: CYCLE[carbIndex],
-      cycleDay: carbIndex + 1,
-      train: TRAIN_CYCLE[trainIndex],
-      trainCycleDay: trainIndex + 1,
-      diff: diff
-    };
+  const VC_EVERY = 2;
+  const VC_LAST = new Date(2026, 4, 27);    // May 27 — VC基准日 (与A醇错开1天，永不同日)
+
+  const A_EVERY = 3;
+  const A_LAST = new Date(2026, 4, 29);     // May 29 — A醇基准日 (与VC错开1天，永不同日)
+
+  const DAY_NAMES = ['日', '一', '二', '三', '四', '五', '六'];
+  const TRAIN_TIPS = {
+    '肩': '推举类动作注意充分热肩袖，侧平举控制离心速度，不要耸肩借力。',
+    '胸': '卧推注意肩胛骨收紧下沉，感受胸肌发力而非前肩代偿。',
+    '背': '划船类动作挺胸沉肩，引体向上控制节奏，注意背阔肌的收缩感。'
+  };
+
+  // ============ HELPERS ============
+  function daysBetween(a, b) {
+    const ms = 86400000;
+    return Math.floor(
+      (Date.UTC(b.getFullYear(), b.getMonth(), b.getDate()) -
+       Date.UTC(a.getFullYear(), a.getMonth(), a.getDate())) / ms
+    );
   }
 
+  function getTrainInfo(date) {
+    const diff = daysBetween(TRAIN_START, date);
+    if (diff < 0) return { train: null, index: -1, diff };
+    const idx = ((diff % TRAIN_CYCLE.length) + TRAIN_CYCLE.length) % TRAIN_CYCLE.length;
+    return { train: TRAIN_CYCLE[idx], index: idx, diff };
+  }
+
+  function useVC(date) {
+    const diff = daysBetween(VC_LAST, date);
+    return diff >= 0 && diff % VC_EVERY === 0;
+  }
+
+  function useA(date) {
+    const diff = daysBetween(A_LAST, date);
+    return diff >= 0 && diff % A_EVERY === 0;
+  }
+
+  function getSkinInfo(date) {
+    const vc = useVC(date);
+    const ret = useA(date);
+    return { vc, ret, any: vc || ret };
+  }
+
+  // ============ RENDER ============
   function render() {
     const now = new Date();
-    const today = getCycleDay(now);
-    const isHigh = today.type === 'high';
-
-    // Body class
-    document.body.className = isHigh ? 'high-carb' : 'low-carb';
+    const todayStart = new Date(now.getFullYear(), now.getMonth(), now.getDate());
 
     // Header
     const dateStr = `${now.getFullYear()}.${String(now.getMonth()+1).padStart(2,'0')}.${String(now.getDate()).padStart(2,'0')}`;
     document.getElementById('dateText').textContent = dateStr;
     document.getElementById('weekDay').textContent = `星期${DAY_NAMES[now.getDay()]}`;
 
-    // ---- Carb Card ----
-    document.getElementById('statusIcon').textContent = isHigh ? '🔥' : '🥗';
-    document.getElementById('statusLabel').textContent = isHigh ? '高碳日' : '低碳日';
-    document.getElementById('cycleInfo').textContent = `第 ${today.diff + 1} 天 · 周期第 ${today.cycleDay}/4 天`;
-
-    const dotsHtml = CYCLE.map((type, i) => {
-      const active = i === today.cycleDay - 1 ? 'active' : '';
-      const dayLabels = ['低', '低', '低', '高'];
-      return `<div class="cycle-dot ${type} ${active}">${dayLabels[i]}</div>`;
-    }).join('');
-    document.getElementById('cycleDots').innerHTML = dotsHtml;
-
-    // ---- Train Card ----
-    const train = today.train;
+    // ---- Training Card ----
+    const ti = getTrainInfo(todayStart);
     const trainCard = document.getElementById('trainCard');
-    const isRest = train.label === '休';
+    const isTrain = ti.train !== null;
+    const isRest = !isTrain;
 
-    trainCard.className = isRest ? 'train-card rest' : 'train-card';
-    document.getElementById('trainIcon').textContent = train.icon;
-    document.getElementById('trainLabel').textContent = train.name;
-    document.getElementById('trainSub').textContent = isRest
-      ? '让肌肉好好恢复，注意睡眠和营养'
-      : `训练周期第 ${today.trainCycleDay}/4 天`;
+    if (isRest) {
+      trainCard.className = 'card train rest-card';
+      document.getElementById('trainIcon').textContent = '😴';
+      document.getElementById('trainTitle').textContent = '休息日';
+      document.getElementById('trainSub').textContent = '让肌肉好好恢复，注意睡眠和营养补充';
+      document.getElementById('trainParts').innerHTML = '';
+    } else {
+      trainCard.className = 'card train';
+      document.getElementById('trainIcon').textContent = ti.train.icon;
+      document.getElementById('trainTitle').textContent = ti.train.name;
+      document.getElementById('trainSub').textContent = `三分化 · 练一休一`;
+      document.getElementById('trainParts').innerHTML =
+        ti.train.parts.map(p => `<span class="card-part">${p}</span>`).join('');
+    }
 
-    // Muscle parts
-    const partsHtml = train.parts.map(p => `<span class="train-part">${p}</span>`).join('');
-    document.getElementById('trainParts').innerHTML = partsHtml;
-
-    // Train dots
+    // Train dots (6-day cycle)
     const trainDotsHtml = TRAIN_CYCLE.map((t, i) => {
-      const active = i === today.trainCycleDay - 1 ? 'active' : '';
-      const restCls = t.label === '休' ? 'rest-dot' : '';
-      return `<div class="train-dot ${restCls} ${active}">${t.label}</div>`;
+      const isActive = i === ti.index;
+      const isDotRest = t === null;
+      const label = isDotRest ? '休' : t.label;
+      const cls = `card-dot ${isDotRest ? 'rest-dot' : ''} ${isActive ? 'active' : ''}`;
+      return `<div class="${cls}">${label}</div>`;
     }).join('');
     document.getElementById('trainDots').innerHTML = trainDotsHtml;
 
+    // ---- Skincare Card ----
+    const si = getSkinInfo(todayStart);
+    const skinCard = document.getElementById('skinCard');
+
+    if (!si.any) {
+      skinCard.className = 'card skin no-routine';
+      document.getElementById('skinIcon').textContent = '🌙';
+      document.getElementById('skinTitle').textContent = '无需护肤';
+      document.getElementById('skinSub').textContent = '今晚基础清洁保湿即可';
+      document.getElementById('skinItems').innerHTML = '';
+    } else {
+      skinCard.className = 'card skin';
+      document.getElementById('skinIcon').textContent = '✨';
+
+      const items = [];
+      if (si.vc) {
+        document.getElementById('skinTitle').textContent = 'VC 精华';
+        document.getElementById('skinSub').textContent = '每 2 天一次 · 抗氧化提亮';
+        items.push('<div class="skin-item"><span class="skin-pill vc">VC 精华</span><span class="skin-note">洁面后第一步使用</span></div>');
+      } else {
+        document.getElementById('skinTitle').textContent = 'A 醇';
+        document.getElementById('skinSub').textContent = '每 3 天一次 · 抗老修复';
+        items.push('<div class="skin-item"><span class="skin-pill ret">A 醇</span><span class="skin-note">薄涂，避开眼周</span></div>');
+      }
+      document.getElementById('skinItems').innerHTML = items.join('');
+    }
+
+    // Skin dots — show next 6 days of skincare
+    const skinDotsArr = [];
+    for (let i = 0; i < 6; i++) {
+      const d = new Date(todayStart);
+      d.setDate(d.getDate() + i);
+      const s = getSkinInfo(d);
+      let label = '—';
+      let isActive = i === 0;
+      let dotStyle = '';
+      if (s.vc) { label = 'VC'; dotStyle = 'background:rgba(251,191,36,0.1);color:rgba(251,191,36,0.5);border:1px solid rgba(251,191,36,0.12);'; }
+      else if (s.ret) { label = 'A醇'; dotStyle = 'background:rgba(192,132,252,0.1);color:rgba(192,132,252,0.5);border:1px solid rgba(192,132,252,0.12);'; }
+      else { dotStyle = 'background:rgba(148,163,184,0.05);color:rgba(148,163,184,0.25);border:1px solid rgba(148,163,184,0.08);'; }
+
+      if (isActive) {
+        if (s.vc) dotStyle = 'background:rgba(251,191,36,0.2);color:#fbbf24;border:1px solid rgba(251,191,36,0.35);box-shadow:0 0 10px rgba(251,191,36,0.15);';
+        else if (s.ret) dotStyle = 'background:rgba(192,132,252,0.2);color:#c084fc;border:1px solid rgba(192,132,252,0.35);box-shadow:0 0 10px rgba(192,132,252,0.15);';
+      }
+
+      skinDotsArr.push(`<div class="card-dot" style="${dotStyle}">${label}</div>`);
+    }
+    document.getElementById('skinDots').innerHTML = skinDotsArr.join('');
+
     // ---- Week Grid ----
     const dayOfWeek = now.getDay();
-    const monday = new Date(now);
-    monday.setDate(now.getDate() - ((dayOfWeek + 6) % 7));
+    const monday = new Date(todayStart);
+    monday.setDate(todayStart.getDate() - ((dayOfWeek + 6) % 7));
 
     let weekHtml = '';
     for (let i = 0; i < 7; i++) {
       const d = new Date(monday);
       d.setDate(monday.getDate() + i);
-      const info = getCycleDay(d);
+      const t = getTrainInfo(d);
+      const s = getSkinInfo(d);
       const isToday = d.toDateString() === now.toDateString();
-      const isPast = d < new Date(now.getFullYear(), now.getMonth(), now.getDate());
+      const isPast = d < todayStart;
 
-      let cls = `day-cell ${info.type}`;
+      let cls = 'day-cell';
       if (isToday) cls += ' today';
       if (isPast) cls += ' past';
 
-      const trainShort = info.train.label;
+      let tags = '';
+      if (t.train) {
+        tags += `<span class="day-tag tag-train">${t.train.label}</span>`;
+      } else {
+        tags += `<span class="day-tag tag-rest">休</span>`;
+      }
+      if (s.vc) tags += '<span class="day-tag tag-vc">C</span>';
+      if (s.ret) tags += '<span class="day-tag tag-ret">A</span>';
 
       weekHtml += `
         <div class="${cls}">
-          <span class="day-name">${DAY_NAMES[(d.getDay())]}</span>
+          <span class="day-name">${DAY_NAMES[d.getDay()]}</span>
           <span class="day-num">${d.getDate()}</span>
-          <span class="day-train">${trainShort}</span>
+          <span class="day-tags">${tags}</span>
           <span class="today-dot"></span>
         </div>`;
     }
@@ -500,18 +547,25 @@
 
     // ---- Tip ----
     const tipEl = document.getElementById('tip');
+    let tipParts = [];
+
+    // Training tip
     if (isRest) {
-      tipEl.innerHTML = '<strong>休息日建议</strong><br>高碳日 + 休息日，可以适当增加碳水摄入补充糖原储备。保证充足睡眠，做一些轻度活动如散步、拉伸。明天开始新的训练周期！';
-    } else if (isHigh) {
-      tipEl.innerHTML = '<strong>高碳日建议</strong><br>适当增加碳水摄入，优先选择优质碳水如糙米、红薯、燕麦。训练日安排在高碳日，利用充足的糖原储备提升训练表现。';
+      tipParts.push('<strong>训练</strong>：今天休息，保证充足睡眠，可以做轻度拉伸和散步促进恢复。');
     } else {
-      const trainTipMap = {
-        '肩': '<strong>肩部训练 + 低碳日</strong><br>控制碳水在 50-100g，增加蛋白质摄入。肩部训练注意热肩袖，逐步加重。推举类动作控制离心速度。',
-        '胸': '<strong>胸部训练 + 低碳日</strong><br>控制碳水在 50-100g，训练前可适当补充快碳。卧推注意肩胛骨收紧，感受胸肌发力。',
-        '背': '<strong>背部训练 + 低碳日</strong><br>控制碳水在 50-100g，补充蛋白质和健康脂肪。划船类动作注意挺胸沉肩，引体向上控制节奏。'
-      };
-      tipEl.innerHTML = trainTipMap[train.label] || '<strong>低碳日建议</strong><br>控制碳水在 50-100g 左右，增加蛋白质和健康脂肪摄入。多喝水，注意补充电解质。';
+      tipParts.push(`<strong>${ti.train.name}</strong>：${TRAIN_TIPS[ti.train.label]}`);
     }
+
+    // Skincare tip
+    if (si.vc) {
+      tipParts.push('<strong>护肤（VC）</strong>：今晚用 VC 精华，洁面后第一步使用，注意避光保存。白天记得做好防晒。');
+    } else if (si.ret) {
+      tipParts.push('<strong>护肤（A醇）</strong>：今晚用 A 醇，薄涂即可，避免眼周。次日务必做好防晒，可搭配保湿打底降低刺激。');
+    } else {
+      tipParts.push('<strong>护肤</strong>：今晚无需特殊护肤，做好基础清洁保湿就好。');
+    }
+
+    tipEl.innerHTML = tipParts.join('<br><br>');
   }
 
   render();
